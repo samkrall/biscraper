@@ -1,0 +1,18 @@
+import pandas as pd
+import json
+import os
+from zipfile import ZipFile
+import shutil
+
+#set filepath and name of file
+filepath = 'C:/Users/samdk/Desktop/pbix_scraper/'
+filename = "Sales Analysis.pbit"
+dms_path = 'DataModelSchema'
+
+#create temp folder (in filepath) and extract pbit file to temp
+f = ZipFile(filepath+filename)
+f.extractall(filepath+'temp')
+
+#open file and save contents as data
+data = json.loads(
+            open(f'{filepath}/temp/DataModelSchema', 'r', encoding='utf-16 le').read())
