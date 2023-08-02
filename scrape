@@ -16,3 +16,69 @@ f.extractall(filepath+'temp')
 #open file and save contents as data
 data = json.loads(
             open(f'{filepath}/temp/DataModelSchema', 'r', encoding='utf-16 le').read())
+
+
+#title
+report_name = filename[:-5]
+
+
+#tables
+table_data = json.loads(
+            open(f'{filepath}/temp/DiagramLayout', 'r', encoding='utf-16 le').read())
+
+table_list = []
+for i in table_data['diagrams'][0]['nodes']:
+    table_list.append(i['nodeIndex'])
+    
+#report pages
+report_data = json.loads(
+            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
+
+report_pages = []
+for i in report_data['sections']:
+    report_pages.append(i['displayName'])
+    
+#create table of sections/visuals
+report_data = json.loads(
+            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
+
+master_list = []
+for i in report_data['sections']:
+    #print(type(i['visualContainers']))
+    for j in i['visualContainers']:
+        individual = json.loads(j['config'])
+        vis_list = []
+        vis_list.append(i['displayName'])
+        vis_list.append(individual['singleVisual']['visualType'])
+        master_list.append(vis_list)
+
+df_visuals = pd.DataFrame(master_list)
+
+report_data = json.loads(
+            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
+
+outer_list = []
+for i in report_data['sections']:
+    for j in i['visualContainers']:
+        inner_data = json.loads(j['config'])
+        inner_list = []
+        #print((inner_data['singleVisual']))
+        #print(' ')
+        #print(i['displayName'])
+        #inner_list.apend(i['displayName'])
+        try:
+            for k,v in inner_data['singleVisual']['projections'].items():
+                inner_list = []
+                inner_list.append(i['displayName'])
+                inner_list.append(inner_data['singleVisual']['visualType'])
+                inner_list.append(k)
+                inner_list.append(v[0]['queryRef'])
+                outer_list.append(inner_list)
+            
+        except:
+            pass
+
+df_detailed = pd.DataFrame(outer_list)
+
+#remove temp folder when finished
+#shutil.rmtree(filepath+'/temp')
