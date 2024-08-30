@@ -3,82 +3,80 @@ import json
 import os
 from zipfile import ZipFile
 import shutil
+import ast
 
-#set filepath and name of file
-filepath = 'C:/Users/samdk/Desktop/pbix_scraper/'
-filename = "Sales Analysis.pbit"
+filepath = 'C:/Users/samdk/Downloads/'
+filename = 'sss.pbit'
 dms_path = 'DataModelSchema'
-
-#create temp folder (in filepath) and extract pbit file to temp
+layout_path = 'Report/Layout'
 f = ZipFile(filepath+filename)
 f.extractall(filepath+'temp')
 
-#open file and save contents as data
-data = json.loads(
-            open(f'{filepath}/temp/DataModelSchema', 'r', encoding='utf-16 le').read())
+dms = json.loads(
+    open(f'{filepath}/temp/DataModelSchema', 'r', encoding='utf-16 le').read())
 
+layout = json.loads(
+    open(f'{filepath}temp/Report/Layout', 'r', encoding='utf-16 le').read())
 
-#title
-report_name = filename[:-5]
+# tables and mcode into a dataframe
+source_list = []
+for table in dms['model']['tables']:
+    source = []
+    source.append(table['partitions'][0]['name'])
+    source.append('\n'.join(table['partitions'][0]['source']['expression']))
+    source_list.append(source)
+source_list_df = pd.DataFrame(source_list, columns = ['Table', 'Query'])
 
+# relationships into a dataframe
+Relationship_list = []
+for relationship in dms['model']['relationships']:
+    Relationship = []
+    Relationship.append(relationship['fromTable']+'.'+relationship['fromColumn'] + ' to ' +relationship['toTable']+'.'+relationship['toColumn'])
+    Relationship_list.append(Relationship)
+relationship_list_df = pd.DataFrame(Relationship_list, columns = ['Relationship'])
 
-#tables
-table_data = json.loads(
-            open(f'{filepath}/temp/DiagramLayout', 'r', encoding='utf-16 le').read())
+# columns into a dataframe
+Column_list = []
+for table in dms['model']['tables']:
+    for column in table['columns']:
+        Column = []
+        Column.append(table['name'])
+        Column.append(column['name'])
+        Column_list.append(Column)
 
-table_list = []
-for i in table_data['diagrams'][0]['nodes']:
-    table_list.append(i['nodeIndex'])
-    
-#report pages
-report_data = json.loads(
-            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
+column_list_df = pd.DataFrame(Column_list, columns = ['Table','Column'])
 
-report_pages = []
-for i in report_data['sections']:
-    report_pages.append(i['displayName'])
-    
-#create table of sections/visuals
-report_data = json.loads(
-            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
+# measures into a dataframe
+Measure_list = []
+for table in dms['model']['tables']:
+    try:
+        for measure in table['measures']:
+            Measure = []
+            Measure.append(table['name'])
+            Measure.append(measure['name']+': ' + measure['expression'])
+            Measure_list.append(Measure)
+    except:
+        continue
+measure_list_df = pd.DataFrame(Measure_list, columns = ['Table', 'Measure'])
 
-master_list = []
-for i in report_data['sections']:
-    #print(type(i['visualContainers']))
-    for j in i['visualContainers']:
-        individual = json.loads(j['config'])
-        vis_list = []
-        vis_list.append(i['displayName'])
-        vis_list.append(individual['singleVisual']['visualType'])
-        master_list.append(vis_list)
+visual_list = []
+visual_ignore_list = ['actionButton', 'basicShape', 'image', 'textbox']
+for page in layout['sections']:
+    for visual in page['visualContainers']:
+        newly_parsed = json.loads(visual['config'])
+        if newly_parsed['singleVisual']['visualType'] in visual_ignore_list:
+            continue
+        else:
+            for k, v in newly_parsed['singleVisual']['projections'].items():
+                for i in v:
+                    visual = []
+                    visual.append(page['displayName'])
+                    visual.append(newly_parsed['singleVisual']['visualType'])
+                    visual.append(i['queryRef'])
+                    visual_list.append(visual)
 
-df_visuals = pd.DataFrame(master_list)
-
-report_data = json.loads(
-            open(f'{filepath}/temp/Report/Layout', 'r', encoding='utf-16 le').read())
-
-outer_list = []
-for i in report_data['sections']:
-    for j in i['visualContainers']:
-        inner_data = json.loads(j['config'])
-        inner_list = []
-        #print((inner_data['singleVisual']))
-        #print(' ')
-        #print(i['displayName'])
-        #inner_list.apend(i['displayName'])
-        try:
-            for k,v in inner_data['singleVisual']['projections'].items():
-                inner_list = []
-                inner_list.append(i['displayName'])
-                inner_list.append(inner_data['singleVisual']['visualType'])
-                inner_list.append(k)
-                inner_list.append(v[0]['queryRef'])
-                outer_list.append(inner_list)
-            
-        except:
-            pass
-
-df_detailed = pd.DataFrame(outer_list)
+visual_df = pd.DataFrame(visual_list, columns = ['Page', 'Visual', 'Table.Column'])
+print(visual_df.shape)
 
 #remove temp folder when finished
 #shutil.rmtree(filepath+'/temp')
