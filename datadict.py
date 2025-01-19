@@ -11,7 +11,7 @@ def about():
     return render_template('about.html')
 
 @app.route('/demo')
-def waitlist():
+def demo():
     return render_template('demo.html')
 
 if __name__ == '__main__':
