@@ -4,15 +4,15 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/home")
 def home():
-    return 'Home'
+    return render_template('home.html')
 
 @app.route('/about')
 def about():
-    return 'About'
+    return render_template('about.html')
 
 @app.route('/demo')
 def waitlist():
-    return 'Demo'
+    return render_template('demo.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

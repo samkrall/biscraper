@@ -1,15 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for post in posts %}
-        <article class="media content-section">
-          <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="#">{{ post.author }}</a>
-              <small class="text-muted">{{ post.date_posted }}</small>
-            </div>
-            <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content }}</p>
-          </div>
-        </article>
-    {% endfor %}
-{% endblock content %}
+<div class="page-container">
+    <h1 class="centered-headline">Welcome to DataDictionary Version 0.1</h1>
+    <div class="form-container">
+        <p>Welcome to datadict.io. We're here to make documenting and understanding Power BI reports easy.</p>
+
+        </p>Version 0.1 takes .PBIT files as inputs and returns a spreadsheet with tabs listing Data Sources, M-Code, Table Relationships, Columns, DAX measures, Pages and Visuals.</p>
+
+
+        </form>
+    </div>
+</div>
+{% endblock %}
