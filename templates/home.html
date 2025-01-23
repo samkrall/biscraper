@@ -3,11 +3,20 @@
 <div class="page-container">
     <h1 class="centered-headline">Welcome to DataDictionary Version 0.1</h1>
     <div class="form-container">
-        <p>Welcome to datadict.io. We're here to make documenting and understanding Power BI reports easy.</p>
-
-        </p>Version 0.1 takes .PBIT files as inputs and returns a spreadsheet with tabs listing Data Sources, M-Code, Table Relationships, Columns, DAX measures, Pages and Visuals.</p>
-
-
+        <p>Welcome to datadict.io. We're here to make documenting and understanding Power BI reports easy. Version 0.1 takes .PBIT files as inputs and returns a spreadsheet with tabs listing Data Sources, M-Code, Table Relationships, Columns, DAX measures, Pages and Visuals.</p>
+        <form method="POST" action="">
+          {{form.hidden_tag() }}
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4"> Join Today</legend>
+            <div class="form-group">
+              {{ form.email.label(class="form-control-label") }}
+              {{ form.email(class="form-control form-control-lg") }}
+            </div>
+          </fieldset>
+          <div class="form-group">
+            {{ form.submit(clas="btn btn-outline-info") }}
+          </div>
+        </form>
         </form>
     </div>
 </div>
